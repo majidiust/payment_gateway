@@ -1,18 +1,21 @@
 var mongoose = require('mongoose');
 
 var PaymentRequest = new mongoose.Schema({
-    paymentId: {type: String},
     requestDate: {type: Date},
     appId: {type: mongoose.Schema.ObjectId, ref:'application', required: true},
     amount: {type: Number},
     returnUrl: {type: String},
     desc: {type: String},
+    mobile: {type: String},
+    email: {type:String},
     gatewayId: {type: mongoose.Schema.ObjectId, ref:'paymentGateway', required: true},
     responseResultCode: {type: String},
     responseResultDesc: {type: String},
     responseRefId: {type: String},
+    refId: {type: String},
     responseDate: {type: Date},
-    transactionState: {type: String, enum: ['Init', 'Failed', 'Success', 'Pending']}
+    transactionState: {type: String, enum: ['Init', 'Failed', 'Success', 'Pending']},
+    ussdCode: {type: String}
 });
 
 var PaymentGateway = new mongoose.Schema({

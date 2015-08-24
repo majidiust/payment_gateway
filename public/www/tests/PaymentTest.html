@@ -1,0 +1,99 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../javascripts/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript">
+
+        function paymentRequest() {
+            console.log('paymentRequest');
+            login();
+        }
+
+        function login() {
+            var loginData = {
+                appId: '55d98b122a3567843ea4767c',
+                password: 'P@ssw0rd'
+            };
+            console.log(loginData);
+            $.ajax({
+                type: 'POST',
+                url: "http://dev.keloud.ir:6060/application/signin",
+                dataType: 'json',
+                data: loginData,
+                success: function (result) {
+                    var token = result.token;
+                    var userId = result.id;
+                    var email = result.email;
+                    var name = result.name;
+                    var phone = result.phone;
+                    var roles = result.roles;
+                    doPayment(token);
+                },
+                error: function () {
+                },
+                async: true
+            });
+        }
+
+        function doPayment(token) {
+            var data = {
+                IPGId: '55d98eef975ac77c1bc04976',
+                amount: $("#amount").val(),
+                desc: $("#desc").val(),
+                email: $("#email").val(),
+                mobile: $("#mobile").val(),
+                returnUrl: "http://dev.keloud.ir:6060/payment/paymentTestCallback"
+            };
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                url: "http://dev.keloud.ir:6060/payment/makePayment",
+                dataType: 'json',
+                data: data,
+                headers: {token: token},
+                success: function (result) {
+                    console.log(result);
+                    if (result.paymentMethod == 1) {
+                        window.location = result.IPGUrl;
+                    }
+                },
+                error: function () {
+                },
+                async: true
+            });
+        }
+    </script>
+</head>
+<body>
+<form>
+    <table>
+        <tr>
+            <td>
+                <input type="text" value="09128995907" id="mobile"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" value="sadeghi@keloud,ir" id="email"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" value="tozihat" id="desc"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" value="500" id="amount"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input id="sbmit" type="button" value="do pay" onclick="paymentRequest();"/>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

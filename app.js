@@ -8,7 +8,17 @@ var connectionString = 'mongodb://localhost:27017/SMSGateway';
 var mongoose = require('mongoose');
 mongoose.connect(connectionString);
 var apps = require('./routes/app');
+var payment = require('./routes/payment');
+var modules = require('./module/modules').Modules;
 var app = express();
+
+modules().reloadModules(function (smsModules) {
+    try {
+    }
+    catch(ex){
+        console.log(ex);
+    }
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,8 +32,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/application', apps);
-
+app.use('/payment', payment);
 /// catch 404 and forward to error handler
+
+app.use(function (req, res, next) {
+    console.log("middle logger layer");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With, token");
+    next();
+});
+
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;

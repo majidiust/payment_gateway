@@ -28,6 +28,28 @@ function Database() {
         });
     }
 
+    function getPaymentGatewayById(id, errCallback, notFoundCallback, findCallback, findCallbackObject) {
+        PaymentGateway.findOne({'_id': id}).exec(function (err, payment) {
+            if (err) {
+                console.log(err);
+                if (errCallback)
+                    errCallback(err);
+            }
+            else if (!payment) {
+                console.log("not found");
+                if (notFoundCallback)
+                    notFoundCallback();
+            }
+            else {
+                console.log("found");
+                if (findCallback) {
+                    findCallback(payment.name, payment.key, payment.login, payment.url, payment.id, payment.returnUrl);
+                }
+                findCallbackObject && findCallbackObject(payment);
+            }
+        });
+    }
+
     function getPaymentGateways(errCallback, successfulCallback) {
         PaymentGateway.find().exec(function (err, smscs) {
             if (err) {
@@ -219,6 +241,7 @@ function Database() {
 
     return {
         getPaymentGatewayByName: getPaymentGatewayByName,
+        getPaymentGatewayById: getPaymentGatewayById,
         createPaymentGateway: createPaymentGateway,
         insertPaymentGatewayToDatabase: insertPaymentGatewayToDatabase,
         getPaymentGateways: getPaymentGateways,

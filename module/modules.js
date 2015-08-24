@@ -4,9 +4,9 @@ var baseModule = require('./baseModule').BaseModule;
 var modules = function () {
     var gatewayModules = {};
     var reloadModules = function (reloadedCallback) {
-        console.log(__dirname + '/../modules/gateways');
+        console.log(__dirname + '/../module/gateways');
         utility.loadModules({
-            folder: __dirname + '/../modules/gateways',
+            folder: __dirname + '/../module/gateways',
             filter: undefined
         }, function (modules) {
             console.log("module loaded : " + modules.length);
@@ -23,7 +23,8 @@ var modules = function () {
         });
     }
     return {
-        reloadModules: reloadModules
+        reloadModules: reloadModules,
+        gatewayModules: gatewayModules
     }
 }
 
