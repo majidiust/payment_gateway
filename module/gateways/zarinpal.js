@@ -67,6 +67,7 @@ ZarinpalModule.prototype.makePayment = function (paymentObj, amount, desc, email
                         paymentObj.refId = results.Authority;
                         paymentObj.responseResultCode = results.Status;
                         paymentObj.transactionState = "Pending";
+                        paymentObj.ussdCode = "*720*97*2*" + parseInt(results.Authority) +"#";
                         paymentObj.save();
 
 //                        var ussdArgs = {
