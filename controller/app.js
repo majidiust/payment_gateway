@@ -7,6 +7,63 @@ var jalali_moment = require("moment-jalaali");
 
 
 function ApplicationController() {
+
+    function validate(decoded, request, callback) {
+        logger.log("debug", " - - - - - - - DECODED token:");
+        logger.log("debug", decoded);
+        UserModel.findOne({'_id': decoded.iss}, function (err, user) {
+            if (!user) {
+                logger.log('verbose', "User not found");
+                return callback("Not found", false);
+            }
+            else if (!err) {
+                TokenModel.find({
+                    token: request.headers.authorization,
+                    state: true,
+                    userId: user.id
+                }, function (err, tokens) {
+                    if (tokens.length > 0) {
+                        request.user = user;
+                        logger.log('verbose', "User found");
+                        return callback(null, true);
+                    }
+                    else {
+                        logger.log('verbose', "User not authorized");
+                        return callback("Not authorized", false);
+                    }
+                })
+            }
+            else {
+                logger.log('verbose', "User not authorized");
+                return callback("Not authorized", false);
+            }
+        });
+    }
+
+    function disableOtherAccounts(userId) {
+        var today = new Date();
+        var conditions = {userId: userId}
+            , update = {stete: true, deleted: today.AsDateJs()}
+            , options = {multi: true};
+        TokenModel.update(conditions, update, options, function (err, numAffected) {
+            if (err)
+                logger.log('error', "error in disabling other accounts");
+            else {
+                logger.log('verbose', "number of updates : " + numAffected);
+            }
+        });
+    }
+
+    function updateUserActivity(activity, user) {
+        logger.log('verbose', "Update user activity for : " + activity);
+        var activity = new ActivityModel({
+            activityname: activity,
+            activitydate: (new Date()).AsDateJs(),
+            username: user.username
+        });
+        activity.save(null);
+    }
+
     function signout(req, res) {
         tokenModel.findOne({ token: req.headers.token, userId: req.application.userId }, function (err, token) {
             if (err) {
@@ -286,7 +343,8 @@ function ApplicationController() {
         getApplicationById: getApplicationById,
         getCurrentApplication: getCurrentApplication,
         addRoleToApplication: addRoleToApplication,
-        changeApplicationStatus: changeApplicationStatus
+        changeApplicationStatus: changeApplicationStatus,
+        validate: validate
     }
 }
 

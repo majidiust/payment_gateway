@@ -9,13 +9,8 @@ var net = require('net');
 var connectionString = 'mongodb://localhost:27017/SMSGateway';
 mongoose.connect(connectionString);
 
-var userRouter = require("./routers/user").UserRouter;
-var userController = require("./controllers/user").UserController;
-var GT06Controller = require("./controllers/GT06Controller").GT06Controller;
-var GPSDataRouter = require("./routers/gpslocation").GPSDataRouter;
-var DeviceGroup = require("./routers/devicegroup").DeviceGroupRouter;
-var DeviceRouter = require("./routers/device").DeviceRouter;
-var schedule = require('./cron/cron.js').CronJob;
+var applicationRouter = require("./routers/app").ApplicationRouter;
+var paymentController = require("./routers/payment").PaymentRouter;
 
 
 'use strict';
@@ -69,10 +64,8 @@ server.register(require('inert'), function(err){
 
 server.ext('onPreResponse', hapiCorsHeaders);
 
-userRouter().register(server);
-GPSDataRouter().register(server);
-DeviceGroup().register(server);
-DeviceRouter().register(server);
+applicationRouter().register(server);
+paymentController().register(server);
 
 server.start(function (err) {
     if (err) {
