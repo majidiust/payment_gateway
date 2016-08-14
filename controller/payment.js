@@ -54,9 +54,9 @@ function PaymentController() {
                             USSD: newPayment.ussdCode,
                             paymentMethod: 1
                         }
-                        res.send(result, 200);
+                        return res(result).code(200);
                     }, function (err) {
-                        res.send(err, 500);
+                        return res(err).code(500);
                     });
                 }
                 catch (ex) {
@@ -74,21 +74,21 @@ function PaymentController() {
             PGM.find({}, function (err, pgms) {
                 if (err) {
                     console.log(err);
-                    res.send(err, 500);
+                    return res(err).code(500);
                 }
                 else if (pgms) {
                     console.log(pgms);
-                    res.send(pgms, 200);
+                    return res(pgms).code(200);
                 }
                 else {
                     console.log("there is no data");
-                    res.send("There is no data", 403);
+                    return res("There is no data").code(403);
                 }
             });
         }
         catch (ex) {
             console.log(ex);
-            res.send(ex, 500);
+            return res(ex).code(500);
         }
     }
 
@@ -114,7 +114,7 @@ function PaymentController() {
                                     console.log(body);
                                     if (rpm.renderUrl)
                                         res.redirect(rpm.renderUrl);
-                                    else res.send(results, 200);
+                                    else return res(results).code(200);
                                 });
                                 //if(rpm.renderUrl)
                                 //res.render("payment.html");
@@ -122,7 +122,7 @@ function PaymentController() {
 
 
                             }, function (err) {
-                                res.send(err, 500);
+                                return res(err).code(500);
                             });
                         }
                         catch (ex) {
@@ -134,13 +134,13 @@ function PaymentController() {
         }
         catch (ex) {
             logger.log(ex);
-            res.send(ex, 500);
+            return res(ex).code(500);
         }
     }
 
     function getListOfPayment(req, res) {
         PRM.find({}, function (err, rpms) {
-            res.send(rpms);
+            return res(rpms);
         })
     }
 
@@ -152,7 +152,7 @@ function PaymentController() {
         }
         catch (ex) {
             console.log(ex);
-            res.send(ex, 500);
+            return res(ex).code(500);
         }
     }
     return{

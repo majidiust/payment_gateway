@@ -75,7 +75,7 @@ function ApplicationController() {
                     if (err)
                         return next(err);
                     else {
-                        res.json({ state: true });
+                        return res({ state: true });
                     }
                     console.log("token updated successfully");
                 });
@@ -89,30 +89,30 @@ function ApplicationController() {
         applicationModel.findOne({ '_id': appId }, function (err, application) {
             if (err) {
                 console.log(err);
-                res.send("Authentication error: error in fetching data", 401);
+                return res("Authentication error: error in fetching data").code(401);
                 return;
             }
             else {
                 if (!application) {
                     console.log("application " + appId + " not found");
-                    res.send("Authentic action error : application not found", 401);
+                    return res("Authentic action error : application not found").code(401);
                     return;
                 }
                 else {
                     application.verifyPassword(password, function (err, isMatch) {
                         if (err) {
                             console.log(err);
-                            res.send("Authentication error: error in verify password", 401);
+                            return res("Authentication error: error in verify password").code(401);
                             return;
                         }
                         else {
                             if (!isMatch) {
                                 console.log("Authentication error : password is wrong");
-                                res.send("Authentication error : password is wrong", 401);
+                                return res("Authentication error : password is wrong").code(401);
                             }
                             else if (application.name != 'admin' && application.approved == false) {
                                 console.log("application has been disabled");
-                                res.send("application has been disabled", 403);
+                                return res("application has been disabled").code(403);
                             }
                             else {
                                 console.log("disabling other tokens for application  : " + appId);
@@ -140,7 +140,7 @@ function ApplicationController() {
 
                                     var result = application.getBrief();
                                     result["token"] = token;
-                                    res.json(result);
+                                    return res(result);
                                     return;
                                 });
                             }
@@ -167,11 +167,11 @@ function ApplicationController() {
         application.save(function (err) {
             if (err) {
                 console.log(err);
-                res.send(err, 401);
+                return res(err).code(401);
             }
             else {
                 console.log("send result to the client");
-                res.send({message: 'application added to database successfully', appId: application.id});
+                return res({message: 'application added to database successfully', appId: application.id});
             }
         });
         console.log(application);
@@ -193,22 +193,22 @@ function ApplicationController() {
         application.roles.push({ roleName: 'admin' });
         application.save(function (err) {
             if (err)
-                res.send(err, 401);
+                return res(err).code(401);
             else
-                res.json({message: 'application added to database successfully', appId: application.id});
+                return res({message: 'application added to database successfully', appId: application.id});
         });
     }
 
     function getApplicationList(req, res) {
         applicationModel.find(function (err, apps) {
             if (err)
-                res.send(err, 401);
+                return res(err).code(401);
             else {
                 var result = [];
                 apps.forEach(function(tmpApp){
                     result.push(tmpApp.getBrief());
                 });
-                res.json(result);
+                return res(result);
             }
         });
     }
@@ -217,7 +217,7 @@ function ApplicationController() {
         console.log("Get user by email : " + req.params.email);
         if (req.params.email) {
             applicationModel.findOne({ email: req.params.email }, function (err, application) {
-                res.json(application.getBrief());
+                return res(application.getBrief());
             });
         }
     }
@@ -225,13 +225,13 @@ function ApplicationController() {
     function getApplicationById(req, res) {
         if (req.body.appId) {
             applicationModel.findOne({'_id': req.body.appId }, function (err, application) {
-                res.json(application.getBrief());
+                return res(application.getBrief());
             });
         }
     }
 
     function getCurrentApplication(req, res) {
-        return res.json(req.application.getBrief());
+        return res(req.application.getBrief());
     }
 
     function addRoleToApplication(req, res) {
@@ -247,16 +247,16 @@ function ApplicationController() {
                     }
                     if (find == false)
                         application.roles.push({roleName: req.body.roleName});
-                    res.send("ok");
+                    return res("ok");
                     application.save(null);
                 }
                 else
-                    res.send('not found', 404);
+                    return res('not found').code(404);
             });
         }
         catch (ex) {
             console.log(ex);
-            res.send(ex, 500);
+            return res(ex).code(500);
         }
     }
 
@@ -267,16 +267,16 @@ function ApplicationController() {
                 if (application) {
                     application.approved = Boolean(!application.approved);
                     approved.save(null);
-                    res.send("ok");
+                    return res("ok");
                 }
                 else {
-                    res.send("not found", 406);
+                    return res("not found").code(406);
                 }
             });
         }
         catch (ex) {
             console.log(ex);
-            res.send(ex, 500);
+            return res(ex).code(500);
         }
     }
 
@@ -286,18 +286,18 @@ function ApplicationController() {
                 req.application.verifyPassword(req.body.currentPassword, function (err, isMatch) {
                     if (err) {
                         console.log(err);
-                        res.send("Authentication error: error in verify password", 401);
+                        return res("Authentication error: error in verify password").code(401);
                         return;
                     }
                     else {
                         if (!isMatch) {
                             console.log("Authentication error : password is wrong");
-                            res.send("Authentication error : password is wrong", 401);
+                            return res("Authentication error : password is wrong").code(401);
                         }
                         else {
                             req.application.hashedPassword = req.body.password;
                             req.application.save(null);
-                            res.send("save successfully");
+                            return res("save successfully");
                         }
                     }
                 });
@@ -305,7 +305,7 @@ function ApplicationController() {
         }
         catch (ex) {
             console.log(ex);
-            res.send(ex, 500);
+            return res(ex).code(500);
         }
     }
 
@@ -315,19 +315,19 @@ function ApplicationController() {
                 applicationModel.findOne({'_id': req.body.appId}).exec(function (err, application) {
                     if (err) {
                         console.log(err);
-                        res.send(err, 500);
+                        return res(err).code(500);
                     }
                     else if (user) {
                         application.hashedPassword = req.body.password;
                         application.save(null);
-                        res.send("save successfully");
+                        return res("save successfully");
                     }
                 });
             }
         }
         catch (ex) {
             console.log(ex);
-            res.send(ex, 500);
+            return res(ex).code(500);
         }
     }
 
