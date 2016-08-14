@@ -1,96 +1,83 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('static-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var connectionString = 'mongodb://localhost:27017/SMSGateway';
+var datejs = require('safe_datejs');
+var Hapi = require("hapi");
+var hapiAuthJWT = require('hapi-auth-jwt2');
+var hapiCorsHeaders = require('hapi-cors-headers');
 var mongoose = require('mongoose');
+var argv = require('minimist')(process.argv.slice(2));
+var net = require('net');
+
+var connectionString = 'mongodb://localhost:27017/SMSGateway';
 mongoose.connect(connectionString);
-var apps = require('./routes/app');
-var payment = require('./routes/payment');
-var modules = require('./module/modules').Modules;
-var cors = require("cors");
-var app = express();
-var fs = require('fs');
-var http = require('http');
-var https = require('https');
-var privateKey  = fs.readFileSync('key.pem', 'utf8');
-var certificate = fs.readFileSync('key-cert.pem', 'utf8');
 
-var credentials = {key: privateKey, cert: certificate};
+var userRouter = require("./routers/user").UserRouter;
+var userController = require("./controllers/user").UserController;
+var GT06Controller = require("./controllers/GT06Controller").GT06Controller;
+var GPSDataRouter = require("./routers/gpslocation").GPSDataRouter;
+var DeviceGroup = require("./routers/devicegroup").DeviceGroupRouter;
+var DeviceRouter = require("./routers/device").DeviceRouter;
+var schedule = require('./cron/cron.js').CronJob;
 
-app.use(cors());
 
-modules().reloadModules(function (smsModules) {
-    try {
-    }
-    catch(ex){
-        console.log(ex);
-    }
-});
+'use strict';
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-//app.set('view engine', 'jade');
-//app.set('view engine', 'ejs');
-app.engine('html', require('ejs').renderFile);
-
-app.use(favicon());
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/application', apps);
-app.use('/payment', payment);
-/// catch 404 and forward to error handler
-
-app.all("/*", function (req, res, next) {
-    console.log("middle logger layer");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, X-Requested-With");
-    next();
-});
-
-app.use(function(req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
-
-/// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
+var cors = {
+    origin: ['*'],
+    headers: ['Accept', 'Accept-Version', 'Content-Type', 'Api-Version', 'X-Requested-With'],
 }
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
+const server = new Hapi.Server({
+    connections: {
+        routes: {
+            cors: cors
+        }
+    }
 });
 
-var httpServer = http.createServer(app);
-var httpsServer = https.createServer(credentials, app);
+var host = '0.0.0.0';
+var port = 6060;
 
-httpServer.listen(6060);
-httpsServer.listen(6063);
+if('h' in argv) {
+    host = String(argv.h);
+}
+if('p' in argv) {
+    port = Number(argv.p);
+}
+
+server.connection({
+    host: host,
+    port: port
+});
 
 
-module.exports = app;
+server.register(hapiAuthJWT, function (err) {
+    if (err) {
+        console.log(err);
+    }
+    server.auth.strategy('jwt', 'jwt', true,
+        {
+            key: '729183456258456',
+            validateFunc: userController().validateUser,
+            verifyOptions: { ignoreExpiration: true }
+        });
+});
+
+server.register(require('inert'), function(err){
+    if (err) {
+        consle.log(err);
+    }
+});
+
+server.ext('onPreResponse', hapiCorsHeaders);
+
+userRouter().register(server);
+GPSDataRouter().register(server);
+DeviceGroup().register(server);
+DeviceRouter().register(server);
+
+server.start(function (err) {
+    if (err) {
+        throw err;
+    }
+    console.log('Server running at:', server.info.uri);
+})
 

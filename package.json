@@ -6,6 +6,10 @@
         "start": "node ./bin/www"
     },
     "dependencies": {
+        "hapi": "*",
+        "hapi-auth-jwt2": "*",
+        "hapi-cors-headers": "*",
+        "inert": "*",
         "express": "~4.2.0",
         "static-favicon": "~1.0.0",
         "morgan": "~1.0.0",
