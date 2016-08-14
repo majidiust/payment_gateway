@@ -40,9 +40,27 @@ if('p' in argv) {
     port = Number(argv.p);
 }
 
+const config = {
+    https: {
+        port: 6063,
+        key: Fs.readFileSync('key.key'),
+        cert: Fs.readFileSync('cert.pem')
+    }
+}
+
 server.connection({
     host: host,
     port: port
+});
+
+
+server.connection({
+    host: host,
+    port: config.https.port,
+    tls: {
+        key: config.https.key,
+        cert: config.https.cert
+    }
 });
 
 server.register(hapiAuthJWT, function (err) {
