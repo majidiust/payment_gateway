@@ -46,7 +46,7 @@ const config = {
     https: {
         port: 6063,
         key: Fs.readFileSync('key.key'),
-        cert: Fs.readFileSync('cert.pem')
+        cert: Fs.readFileSync('cert.crt')
     }
 }
 
