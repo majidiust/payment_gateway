@@ -6,84 +6,84 @@ function ApplicationRouter() {
             method: 'POST',
             path: '/signupAdmin',
             config: {auth: false},
-            handler: ApplicationRouter().signupAdmin
+            handler: AppController().signupAdmin
         });
 
         server.route({
             method: 'POST',
             path: '/signup',
             config: {auth: false},
-            handler: ApplicationRouter().signup
+            handler: AppController().signup
         });
 
         server.route({
             method: 'POST',
             path: '/signin',
             config: {auth: false},
-            handler: ApplicationRouter().signin
+            handler: AppController().signin
         });
 
         server.route({
             method: 'POST',
             path: '/signout',
             config: {auth: false},
-            handler: ApplicationRouter().signout
+            handler: AppController().signout
         });
 
         server.route({
             method: 'POST',
             path: '/changePassword',
             config: {auth: false},
-            handler: ApplicationRouter().changePassword
+            handler: AppController().changePassword
         });
 
         server.route({
             method: 'POST',
             path: '/changeApplicationPassword',
             config: {auth: false},
-            handler: ApplicationRouter().changeApplicationPassword
+            handler: AppController().changeApplicationPassword
         });
 
         server.route({
             method: 'GET',
             path: '/getApplicationList',
             config: {auth: false},
-            handler: ApplicationRouter().getApplicationList
+            handler: AppController().getApplicationList
         });
 
         server.route({
             method: 'GET',
             path: '/getApplicationByMail/{email}',
             config: {auth: false},
-            handler: ApplicationRouter().getApplication
+            handler: AppController().getApplication
         });
 
         server.route({
             method: 'POST',
             path: '/getApplicationById',
             config: {auth: false},
-            handler: ApplicationRouter().getApplicationById
+            handler: AppController().getApplicationById
         });
 
         server.route({
             method: 'GET',
             path: '/getCurrentApplication',
             config: {auth: false},
-            handler: ApplicationRouter().getCurrentApplication
+            handler: AppController().getCurrentApplication
         });
 
         server.route({
             method: 'POST',
             path: '/addRoleToApplication',
             config: {auth: false},
-            handler: ApplicationRouter().addRoleToApplication
+            handler: AppController().addRoleToApplication
         });
 
         server.route({
             method: 'POST',
             path: '/changeApplicationStatus',
             config: {auth: false},
-            handler: ApplicationRouter().changeApplicationStatus
+            handler: AppController().changeApplicationStatus
         });
     }
     return{
