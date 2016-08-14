@@ -10,7 +10,8 @@ var connectionString = 'mongodb://localhost:27017/SMSGateway';
 mongoose.connect(connectionString);
 
 var applicationRouter = require("./routers/app").ApplicationRouter;
-var paymentController = require("./routers/payment").PaymentRouter;
+var paymentRouter = require("./routers/payment").PaymentRouter;
+var applicationController = require("./controller/app").ApplicationController;
 
 
 'use strict';
@@ -43,7 +44,6 @@ server.connection({
     port: port
 });
 
-
 server.register(hapiAuthJWT, function (err) {
     if (err) {
         console.log(err);
@@ -51,7 +51,7 @@ server.register(hapiAuthJWT, function (err) {
     server.auth.strategy('jwt', 'jwt', true,
         {
             key: '729183456258456',
-            validateFunc: userController().validateUser,
+            validateFunc: applicationController().validateUser,
             verifyOptions: { ignoreExpiration: true }
         });
 });
@@ -65,7 +65,7 @@ server.register(require('inert'), function(err){
 server.ext('onPreResponse', hapiCorsHeaders);
 
 applicationRouter().register(server);
-paymentController().register(server);
+paymentRouter().register(server);
 
 server.start(function (err) {
     if (err) {

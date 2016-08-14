@@ -11,20 +11,20 @@ function ApplicationController() {
     function validate(decoded, request, callback) {
         logger.log("debug", " - - - - - - - DECODED token:");
         logger.log("debug", decoded);
-        UserModel.findOne({'_id': decoded.iss}, function (err, user) {
-            if (!user) {
-                logger.log('verbose', "User not found");
+        applicationModel.findOne({'_id': decoded.iss}, function (err, application) {
+            if (!application) {
+                logger.log('verbose', "application not found");
                 return callback("Not found", false);
             }
             else if (!err) {
-                TokenModel.find({
-                    token: request.headers.authorization,
+                tokenModel.find({
+                    token: request.headers.token,
                     state: true,
-                    userId: user.id
+                    userId: application.id
                 }, function (err, tokens) {
                     if (tokens.length > 0) {
-                        request.user = user;
-                        logger.log('verbose', "User found");
+                        request.application = application;
+                        logger.log('verbose', "application found");
                         return callback(null, true);
                     }
                     else {
@@ -45,7 +45,7 @@ function ApplicationController() {
         var conditions = {userId: userId}
             , update = {stete: true, deleted: today.AsDateJs()}
             , options = {multi: true};
-        TokenModel.update(conditions, update, options, function (err, numAffected) {
+        tokenModel.update(conditions, update, options, function (err, numAffected) {
             if (err)
                 logger.log('error', "error in disabling other accounts");
             else {
