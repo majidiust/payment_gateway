@@ -24,15 +24,15 @@
         "walk": "*",
         "mongoose": "*",
         "moment": "2.6.0",
-        "jwt-simple": "0.2.0",
+        "jwt-simple": "*",
         "safe_datejs": "*",
         "path": "*",
         "winston": "*",
         "kue": "*",
         "soap": "*",
         "request": "*",
-	"ejs":"*",
-	"cors":"*",
-        "minimist":"*"
+        "ejs": "*",
+        "cors": "*",
+        "minimist": "*"
     }
 }

@@ -14,6 +14,7 @@ var paymentRouter = require("./routers/payment").PaymentRouter;
 var applicationController = require("./controller/app").ApplicationController;
 
 
+
 'use strict';
 
 var cors = {
@@ -51,7 +52,7 @@ server.register(hapiAuthJWT, function (err) {
     server.auth.strategy('jwt', 'jwt', true,
         {
             key: '729183456258456',
-            validateFunc: applicationController().validateUser,
+            validateFunc: applicationController().validate,
             verifyOptions: { ignoreExpiration: true }
         });
 });
