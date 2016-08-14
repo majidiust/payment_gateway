@@ -84,8 +84,8 @@ function ApplicationController() {
     }
 
     function signin(req, res) {
-        var appId = req.body.appId;
-        var password = req.body.password;
+        var appId = req.payload.appId;
+        var password = req.payload.password;
         applicationModel.findOne({ '_id': appId }, function (err, application) {
             if (err) {
                 console.log(err);
@@ -154,13 +154,13 @@ function ApplicationController() {
     function signup(req, res) {
         console.log("Signup new application");
         var application = new applicationModel({
-            hashedPassword: req.body.password,
+            hashedPassword: req.payload.password,
             registerDate: (new Date()).AsDateJs(),
-            name: req.body.name,
-            email: req.body.email,
+            name: req.payload.name,
+            email: req.payload.email,
             approved: true,
             locked: false,
-            phone: req.body.phone,
+            phone: req.payload.phone,
             salt: "1"
         });
         application.roles.push({ roleName: 'user' });
@@ -180,13 +180,13 @@ function ApplicationController() {
     function signupAdmin(req, res) {
         console.log("Signup new application");
         var application = new applicationModel({
-            hashedPassword: req.body.password,
+            hashedPassword: req.payload.password,
             registerDate: (new Date()).AsDateJs(),
-            name: req.body.name,
-            email: req.body.email,
+            name: req.payload.name,
+            email: req.payload.email,
             approved: false,
             locked: false,
-            phone: req.body.phone,
+            phone: req.payload.phone,
             salt: "1",
         });
         console.log(application);
@@ -223,8 +223,8 @@ function ApplicationController() {
     }
 
     function getApplicationById(req, res) {
-        if (req.body.appId) {
-            applicationModel.findOne({'_id': req.body.appId }, function (err, application) {
+        if (req.payload.appId) {
+            applicationModel.findOne({'_id': req.payload.appId }, function (err, application) {
                 return res(application.getBrief());
             });
         }
@@ -236,17 +236,17 @@ function ApplicationController() {
 
     function addRoleToApplication(req, res) {
         try {
-            applicationModel.findOne({ '_id': req.body.appId }, function (err, application) {
+            applicationModel.findOne({ '_id': req.payload.appId }, function (err, application) {
                 if (application) {
                     var find = false;
                     for (var i = 0; i < application.roles.length; i++) {
-                        if (application.roles[i].roleName == req.body.roleName) {
+                        if (application.roles[i].roleName == req.payload.roleName) {
                             find = true;
                             break;
                         }
                     }
                     if (find == false)
-                        application.roles.push({roleName: req.body.roleName});
+                        application.roles.push({roleName: req.payload.roleName});
                     return res("ok");
                     application.save(null);
                 }
@@ -263,7 +263,7 @@ function ApplicationController() {
     function changeApplicationStatus(req, res) {
 
         try {
-            applicationModel.findOne({ '_id': req.body.appId }, function (err, application) {
+            applicationModel.findOne({ '_id': req.payload.appId }, function (err, application) {
                 if (application) {
                     application.approved = Boolean(!application.approved);
                     approved.save(null);
@@ -282,8 +282,8 @@ function ApplicationController() {
 
     function changePassword(req, res) {
         try {
-            if (req.body.password) {
-                req.application.verifyPassword(req.body.currentPassword, function (err, isMatch) {
+            if (req.payload.password) {
+                req.application.verifyPassword(req.payload.currentPassword, function (err, isMatch) {
                     if (err) {
                         console.log(err);
                         return res("Authentication error: error in verify password").code(401);
@@ -295,7 +295,7 @@ function ApplicationController() {
                             return res("Authentication error : password is wrong").code(401);
                         }
                         else {
-                            req.application.hashedPassword = req.body.password;
+                            req.application.hashedPassword = req.payload.password;
                             req.application.save(null);
                             return res("save successfully");
                         }
@@ -311,14 +311,14 @@ function ApplicationController() {
 
     function changeApplicationPassword(req, res) {
         try {
-            if (req.body.password) {
-                applicationModel.findOne({'_id': req.body.appId}).exec(function (err, application) {
+            if (req.payload.password) {
+                applicationModel.findOne({'_id': req.payload.appId}).exec(function (err, application) {
                     if (err) {
                         console.log(err);
                         return res(err).code(500);
                     }
                     else if (user) {
-                        application.hashedPassword = req.body.password;
+                        application.hashedPassword = req.payload.password;
                         application.save(null);
                         return res("save successfully");
                     }
