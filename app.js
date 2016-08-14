@@ -5,6 +5,8 @@ var hapiCorsHeaders = require('hapi-cors-headers');
 var mongoose = require('mongoose');
 var argv = require('minimist')(process.argv.slice(2));
 var net = require('net');
+const Fs = require('fs');
+const Url = require('url');
 
 var connectionString = 'mongodb://localhost:27017/SMSGateway';
 mongoose.connect(connectionString);
