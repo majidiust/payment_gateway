@@ -24,6 +24,7 @@ function makePaymentByIPGId(req, res) {
         var mobile = req.body.mobile;
         var applicationId = req.application.id;
         var returnUrl = req.body.returnUrl;
+	var renderUrl = req.body.renderUrl; 
         var newPayment = new PRM({
             requestDate: (new Date()).AsDateJs(),
             appId: applicationId,
@@ -33,13 +34,15 @@ function makePaymentByIPGId(req, res) {
             mobile: mobile,
             gatewayId: gatewayId,
             returnUrl: returnUrl,
-            transactionState: 'Init'
+            transactionState: 'Init',
+	    renderUrl: renderUrl
         });
         newPayment.save();
+	console.log(newPayment);
         console.log(gatewayId + " : " + amount + " : " + desc + email + " : " + mobile + " : " + applicationId);
         modules().reloadModules(function (ipgs) {
             try {
-                ipgs[gatewayId].makePayment(newPayment, amount, desc, email, mobile, 'http://dev.keloud.ir:6060/payment/IPGCallback', function (results) {
+                ipgs[gatewayId].makePayment(newPayment, amount, desc, email, mobile, 'http://payment.keloud.ir:6060/payment/IPGCallback', function (results) {
                     var result = {
                         Status: results.Status,
                         Authority: results.Authority,
@@ -99,14 +102,22 @@ function IPGCallback(req, res) {
                         ipgs[gatewayId].paymentCallback(req, res, function (error) {
                             console.log(error);
                         }, function (results) {
+			    console.log(results);
                             request.post({
-                                headers: {'content-type': 'application/x-www-form-urlencoded'},
+                                //headers: {'content-type': 'application/x-www-form-urlencoded'},
                                 url: rpm.returnUrl,
-                                json: { paymentData : rpm}
+                                json: results
                             }, function (error, response, body) {
                                 console.log(body);
+				if(rpm.renderUrl)
+				    res.redirect(rpm.renderUrl);
+			        else res.send(results, 200);
                             });
-                            res.send(results, 200);
+			    //if(rpm.renderUrl)
+				//res.render("payment.html");
+                        //    res.send(results, 200);
+			    
+			
                         }, function (err) {
                             res.send(err, 500);
                         });
@@ -134,6 +145,7 @@ function paymentTestCallback(req, res){
     try{
         console.log("####################### Callback Test #########################");
         console.log(req.body);
+//	res.send(req.body);
     }
     catch(ex){
         console.log(ex);

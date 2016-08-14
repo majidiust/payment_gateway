@@ -10,7 +10,17 @@ mongoose.connect(connectionString);
 var apps = require('./routes/app');
 var payment = require('./routes/payment');
 var modules = require('./module/modules').Modules;
+var cors = require("cors");
 var app = express();
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+var privateKey  = fs.readFileSync('key.pem', 'utf8');
+var certificate = fs.readFileSync('key-cert.pem', 'utf8');
+
+var credentials = {key: privateKey, cert: certificate};
+
+app.use(cors());
 
 modules().reloadModules(function (smsModules) {
     try {
@@ -22,7 +32,9 @@ modules().reloadModules(function (smsModules) {
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+//app.set('view engine', 'jade');
+//app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
 
 app.use(favicon());
 app.use(logger('dev'));
@@ -35,10 +47,11 @@ app.use('/application', apps);
 app.use('/payment', payment);
 /// catch 404 and forward to error handler
 
-app.use(function (req, res, next) {
+app.all("/*", function (req, res, next) {
     console.log("middle logger layer");
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With, token");
+    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, X-Requested-With");
     next();
 });
 
@@ -72,5 +85,12 @@ app.use(function(err, req, res, next) {
     });
 });
 
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(6060);
+httpsServer.listen(6063);
+
 
 module.exports = app;
+

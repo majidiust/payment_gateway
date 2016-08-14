@@ -11,11 +11,11 @@ var PRM = require('../../database/model/payment').PaymentRequestModel;
 var PGM = require('../../database/model/payment').PaymentGatewayModel;
 
 
-function ZarinpalModule(readyCallback) {
+function ZarforoshModule(readyCallback) {
     BaseModule.call(this);
-    this.setModuleName('zarinpal');
-    this.setModuleCredential('556313b2-4148-4229-beab-0c835bef37d4', '556313b2-4148-4229-beab-0c835bef37d4');
-    addToDatabase('zarinpal', '556313b2-4148-4229-beab-0c835bef37d4', '556313b2-4148-4229-beab-0c835bef37d4', 'https://www.zarinpal.com/pg/StartPay');
+    this.setModuleName('zarforosh');
+    this.setModuleCredential('187d1a2a-5b24-11e6-8fe7-000c295eb8fc', '187d1a2a-5b24-11e6-8fe7-000c295eb8fc');
+    addToDatabase('zarforosh', '187d1a2a-5b24-11e6-8fe7-000c295eb8fc', '187d1a2a-5b24-11e6-8fe7-000c295eb8fc', 'https://www.zarinpal.com/pg/StartPay');
     this.init(readyCallback);
 }
 
@@ -39,9 +39,9 @@ function addToDatabase(name, login, key, url, returnUrl) {
     }
 }
 
-util.inherits(ZarinpalModule, BaseModule);
+util.inherits(ZarforoshModule, BaseModule);
 
-ZarinpalModule.prototype.makePayment = function (paymentObj, amount, desc, email, mobile, callbackurl, successCallback, errorCallback) {
+ZarforoshModule.prototype.makePayment = function (paymentObj, amount, desc, email, mobile, callbackurl, successCallback, errorCallback) {
     try {
         var url = 'https://ir.zarinpal.com/pg/services/WebGate/wsdl';
         var key = this.moduleInfo.key;
@@ -59,6 +59,7 @@ ZarinpalModule.prototype.makePayment = function (paymentObj, amount, desc, email
                     Mobile: mobile.toString(),
                     CallbackURL: callbackurl.toString()
                 }
+		console.log(args);
                 client.PaymentRequest(args, function (err, results) {
                     if (err) {
                         errorCallback && errorCallback(err);
@@ -98,7 +99,8 @@ ZarinpalModule.prototype.makePayment = function (paymentObj, amount, desc, email
     }
 };
 
-ZarinpalModule.prototype.paymentCallback = function (req, res, errorCallback, successCallback) {
+
+ZarforoshModule.prototype.paymentCallback = function (req, res, errorCallback, successCallback) {
     try {
         console.log("LOG 3");
         var url = 'https://ir.zarinpal.com/pg/services/WebGate/wsdl';
@@ -135,15 +137,22 @@ ZarinpalModule.prototype.paymentCallback = function (req, res, errorCallback, su
                                                 errorCallback && errorCallback(err);
                                             }
                                             else {
-                                                if(parseInt(results.Status) < 0)
+						console.log("Salam : " + results.Status);
+                                                if(parseInt(results.Status) < 0){
                                                     payment.transactionState = "Failed";
-                                                else payment.transactionState = "Success";
+						    console.log("failed");
+						}
+                                                else{ 
+						    payment.transactionState = "Success";
+						    console.log("succedd");
+						}
                                                 payment.responseRefId = results.RefID;
                                                 payment.responseResultCode = results.Status;
-                                                payment.save(function(){
-                                                successCallback && successCallback(payment);
-});
-
+                                                payment.save(function(err){
+						    err && console.log(err);
+						    console.log(payment);
+						    successCallback && successCallback(payment);
+						});
                                             }
                                         })
                                     }
@@ -169,4 +178,4 @@ ZarinpalModule.prototype.paymentCallback = function (req, res, errorCallback, su
     }
 };
 
-module.exports = ZarinpalModule;
+module.exports = ZarforoshModule;

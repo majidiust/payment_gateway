@@ -5,6 +5,7 @@ var PaymentRequest = new mongoose.Schema({
     appId: {type: mongoose.Schema.ObjectId, ref:'application', required: true},
     amount: {type: Number},
     returnUrl: {type: String},
+    renderUrl: {type: String},
     desc: {type: String},
     mobile: {type: String},
     email: {type:String},

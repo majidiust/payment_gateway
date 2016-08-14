@@ -26,6 +26,8 @@
         "winston": "*",
         "kue": "*",
         "soap": "*",
-        "request": "*"
+        "request": "*",
+	"ejs":"*",
+	"cors":"*"
     }
 }
