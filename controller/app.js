@@ -18,7 +18,7 @@ function ApplicationController() {
             }
             else if (!err) {
                 tokenModel.find({
-                    token: request.headers.token,
+                    token: request.headers.authorization,
                     state: true,
                     userId: application.id
                 }, function (err, tokens) {
