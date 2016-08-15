@@ -19,14 +19,14 @@ var moment = require('moment-jalaali');
 function PaymentController() {
     function makePaymentByIPGId(req, res) {
         try {
-            var gatewayId = req.body.IPGId;
-            var amount = req.body.amount;
-            var desc = req.body.desc;
-            var email = req.body.email;
-            var mobile = req.body.mobile;
+            var gatewayId = req.payload.IPGId;
+            var amount = req.payload.amount;
+            var desc = req.payload.desc;
+            var email = req.payload.email;
+            var mobile = req.payload.mobile;
             var applicationId = req.application.id;
-            var returnUrl = req.body.returnUrl;
-            var renderUrl = req.body.renderUrl;
+            var returnUrl = req.payload.returnUrl;
+            var renderUrl = req.payload.renderUrl;
             var newPayment = new PRM({
                 requestDate: (new Date()).AsDateJs(),
                 appId: applicationId,
@@ -147,8 +147,8 @@ function PaymentController() {
     function paymentTestCallback(req, res) {
         try {
             console.log("####################### Callback Test #########################");
-            console.log(req.body);
-//	res.send(req.body);
+            console.log(req.payload);
+//	res.send(req.payload);
         }
         catch (ex) {
             console.log(ex);
