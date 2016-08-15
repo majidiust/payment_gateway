@@ -33,7 +33,7 @@ function PaymentRouter() {
         server.route({
             method: 'POST',
             path: '/payment/makePayment',
-            config: { auth: false },
+            config: { auth: 'jwt' },
             handler: PaymentController().makePaymentByIPGId
         });
 
