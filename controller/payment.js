@@ -45,7 +45,7 @@ function PaymentController() {
             console.log(gatewayId + " : " + amount + " : " + desc + email + " : " + mobile + " : " + applicationId);
             modules().reloadModules(function (ipgs) {
                 try {
-                    ipgs[gatewayId].makePayment(newPayment, amount, desc, email, mobile, 'http://payment.keloud.ir:6060/payment/IPGCallback', function (results) {
+                    ipgs[gatewayId].makePayment(newPayment, amount, desc, email, mobile, 'https://ipg.keloud.ir:6063/payment/IPGCallback', function (results) {
                         var result = {
                             Status: results.Status,
                             Authority: results.Authority,
