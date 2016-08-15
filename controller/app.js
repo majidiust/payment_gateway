@@ -9,11 +9,11 @@ var jalali_moment = require("moment-jalaali");
 function ApplicationController() {
 
     function validate(decoded, request, callback) {
-        logger.log("debug", " - - - - - - - DECODED token:");
-        logger.log("debug", decoded);
+        console.log(" - - - - - - - DECODED token:");
+        console.log(decoded);
         applicationModel.findOne({'_id': decoded.iss}, function (err, application) {
             if (!application) {
-                logger.log('verbose', "application not found");
+                console.log("application not found");
                 return callback("Not found", false);
             }
             else if (!err) {
@@ -24,17 +24,17 @@ function ApplicationController() {
                 }, function (err, tokens) {
                     if (tokens.length > 0) {
                         request.application = application;
-                        logger.log('verbose', "application found");
+                        console.log("application found");
                         return callback(null, true);
                     }
                     else {
-                        logger.log('verbose', "User not authorized");
+                        console.log("User not authorized");
                         return callback("Not authorized", false);
                     }
                 })
             }
             else {
-                logger.log('verbose', "User not authorized");
+                console.log("User not authorized");
                 return callback("Not authorized", false);
             }
         });
