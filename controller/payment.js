@@ -24,7 +24,7 @@ function PaymentController() {
             var desc = req.payload.desc;
             var email = req.payload.email;
             var mobile = req.payload.mobile;
-            var applicationId = req.application.id;
+            var applicationId = "57f94d9e4ef80c40c60131a7";
             var returnUrl = req.payload.returnUrl;
             var renderUrl = req.payload.renderUrl;
             var newPayment = new PRM({
@@ -45,7 +45,7 @@ function PaymentController() {
             console.log(gatewayId + " : " + amount + " : " + desc + email + " : " + mobile + " : " + applicationId);
             modules().reloadModules(function (ipgs) {
                 try {
-                    ipgs[gatewayId].makePayment(newPayment, amount, desc, email, mobile, 'https://ipg.keloud.ir:6063/payment/IPGCallback', function (results) {
+                    ipgs[gatewayId].makePayment(newPayment, amount, desc, email, mobile, 'https://zarforosh.ir:6063/payment/IPGCallback', function (results) {
                         var result = {
                             Status: results.Status,
                             Authority: results.Authority,
@@ -96,6 +96,16 @@ function PaymentController() {
         try {
             if (req.query.Status && req.query.Authority) {
                 PRM.findOne({refId: req.query.Authority}, function (err, rpm) {
+		    if(err){
+		    console.log(err);
+		    res.redirect("https://zarforosh.ir");
+			}
+		    else if(!rpm){
+			console.log(req.query);
+			res.redirect("https://zarforosh.ir");
+		    }
+		    else
+		    {
                     console.log("LOG 1");
                     var gatewayId = rpm.gatewayId;
                     console.log(rpm.gatewayId);
@@ -105,16 +115,22 @@ function PaymentController() {
                             ipgs[gatewayId].paymentCallback(req, res, function (error) {
                                 console.log(error);
                             }, function (results) {
+				    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                                 console.log(results);
+				console.log(rpm.returnUrl);
+				console.log(rpm.renderUrl);
                                 request.post({
                                     //headers: {'content-type': 'application/x-www-form-urlencoded'},
                                     url: rpm.returnUrl,
-                                    json: results
+                                    json: results,
+strictSSL: false
                                 }, function (error, response, body) {
-                                    console.log(body);
+                                    console.log(error);
+				    console.log("posted");
                                     if (rpm.renderUrl)
                                         res.redirect(rpm.renderUrl);
-                                    else return res(results).code(200);
+                                    else 
+return res(results).code(200);
                                 });
                                 //if(rpm.renderUrl)
                                 //res.render("payment.html");
@@ -129,6 +145,7 @@ function PaymentController() {
                             console.log(ex);
                         }
                     });
+		    }
                 })
             }
         }

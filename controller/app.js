@@ -4,7 +4,7 @@ var jwt = require("jwt-simple");
 var moment = require("moment");
 var datejs = require("safe_datejs");
 var jalali_moment = require("moment-jalaali");
-
+var logger = require("../utility/logger");
 
 function ApplicationController() {
 

@@ -15,7 +15,11 @@ var applicationRouter = require("./routers/app").ApplicationRouter;
 var paymentRouter = require("./routers/payment").PaymentRouter;
 var applicationController = require("./controller/app").ApplicationController;
 
+var modules = require('./module/modules').Modules;
 
+modules().reloadModules(function(sms){
+
+});
 
 'use strict';
 
@@ -45,8 +49,8 @@ if('p' in argv) {
 const config = {
     https: {
         port: 6063,
-        key: Fs.readFileSync('key.key'),
-        cert: Fs.readFileSync('cert.crt')
+        key: Fs.readFileSync('zarforosh.ir_key.key'),
+        cert: Fs.readFileSync('zarforosh.ir_bundle_.crt')
     }
 }
 
